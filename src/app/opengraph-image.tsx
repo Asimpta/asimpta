@@ -66,7 +66,7 @@ export default function OgImage() {
             justifyContent: "space-between",
           }}
         >
-          <div style={{ fontSize: 20, color: "#6B6F75" }}>asimpta.com</div>
+          <div style={{ fontSize: 20, color: "#6B6F75" }}>asimpta.com.br</div>
           <div
             style={{
               width: 48,

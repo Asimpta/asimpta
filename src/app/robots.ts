@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://asimpta.com/sitemap.xml",
+    sitemap: "https://asimpta.com.br/sitemap.xml",
   };
 }

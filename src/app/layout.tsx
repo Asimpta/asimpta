@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const BASE_URL = "https://asimpta.com";
+const BASE_URL = "https://asimpta.com.br";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -83,11 +83,11 @@ const jsonLd = {
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer service",
-    email: "ola@asimpta.com",
+    email: "contato@asimpta.com.br",
     availableLanguage: "Portuguese",
   },
   sameAs: [
-    "https://instagram.com/asimpta",
+    "https://instagram.com/asimptasoftware",
     "https://github.com/asimpta",
   ],
 };
