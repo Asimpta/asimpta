@@ -1,0 +1,236 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f6f4ef;
+  --bg-elev: #fbfaf7;
+  --paper: #ffffff;
+  --ink: #15171a;
+  --ink-2: #2c2f33;
+  --muted: #6b6f75;
+  --muted-2: #9a9da3;
+  --line: #e4e1d9;
+  --line-2: #efece5;
+  --accent: #1f4a45;
+  --accent-2: #2c6660;
+  --accent-soft: #dde5e2;
+  --warn: #b95c3f;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", -apple-system, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Ticker animation */
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker 40s linear infinite;
+  display: flex;
+  gap: 64px;
+  width: max-content;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 164, 143, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 164, 143, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 164, 143, 0);
+  }
+}
+
+.pulse-dot {
+  animation: pulse 2s infinite;
+}
+
+/* Badge pulse */
+@keyframes badge-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(136, 181, 174, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(136, 181, 174, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(136, 181, 174, 0);
+  }
+}
+
+.badge-pulse {
+  animation: badge-pulse 2.4s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-2);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ── Responsive grid overrides ──────────────────────────────────────── */
+
+/* Section headers: 2-col → 1-col below 880px */
+@media (max-width: 880px) {
+  .section-head-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .sobre-grid,
+  .contato-grid {
+    grid-template-columns: 1fr !important;
+    gap: 48px !important;
+  }
+  .contato-side {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+  }
+  .step-grid {
+    grid-template-columns: 50px 1fr !important;
+    gap: 16px !important;
+  }
+  .step-desc-col {
+    grid-column: 1 / -1;
+  }
+  .step-tag-col {
+    display: none !important;
+  }
+  .solutions-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .differentials-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .services-grid-inner {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .deliverables-grid-inner {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .deliverables-card-wide {
+    grid-column: span 2 !important;
+  }
+  .hero-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 56px !important;
+  }
+  .foot-grid-inner {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .foot-grid-inner {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .services-grid-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .deliverables-grid-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .deliverables-card-wide {
+    grid-column: span 1 !important;
+  }
+  .solutions-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .differentials-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .email-whatsapp-grid {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .foot-grid-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce section vertical padding on very small screens */
+  .py-\[110px\] {
+    padding-top: 72px !important;
+    padding-bottom: 72px !important;
+  }
+}
