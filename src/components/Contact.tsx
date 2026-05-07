@@ -14,14 +14,12 @@ interface CustomSelectProps {
   options: SelectOption[];
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
 }
 
 function CustomSelect({
   options,
   value,
   onChange,
-  placeholder = "Selecione uma opção",
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -86,7 +84,7 @@ function CustomSelect({
         }}
         data-testid="contact-select-trigger-project-type"
       >
-        <span>{selected ? selected.label : placeholder}</span>
+        <span>{selected ? selected.label : "Selecione uma opção"}</span>
         <ChevronDown
           size={16}
           className="flex-none text-muted transition-transform duration-200"
@@ -417,7 +415,6 @@ export default function Contact() {
                 options={projectTypeOptions}
                 value={form.projectType}
                 onChange={(v) => setForm((f) => ({ ...f, projectType: v }))}
-                placeholder="Selecione uma opção"
               />
               {errors.projectType && (
                 <span

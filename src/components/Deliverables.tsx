@@ -68,19 +68,13 @@ export default function Deliverables() {
           {deliverables.map((d) => (
             <motion.article
               key={d.id}
-              className={`flex flex-col gap-3.5 cursor-default transition-colors duration-200${d.wide ? " deliverables-card-wide" : ""}`}
+              className={`flex flex-col gap-3.5 cursor-default transition-colors duration-200 hover:bg-[#1F2226]${d.wide ? " deliverables-card-wide" : ""}`}
               style={{
                 background: "#15171A",
                 padding: "36px 28px",
                 minHeight: 200,
                 gridColumn: d.wide ? "span 3" : "span 1",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#1F2226")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "#15171A")
-              }
               variants={fadeInUp}
               data-testid={`deliverables-card-${d.id}`}
             >
