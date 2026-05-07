@@ -170,15 +170,15 @@ const contactLinks = [
   {
     id: "email",
     label: "E-mail",
-    value: "ola@asimpta.com",
-    href: "mailto:ola@asimpta.com",
+    value: "contato@asimpta.com.br",
+    href: "mailto:contato@asimpta.com.br",
     testId: "contact-link-email",
   },
   {
     id: "instagram",
     label: "Instagram",
-    value: "@asimpta",
-    href: "https://instagram.com/asimpta",
+    value: "@asimptasoftware",
+    href: "https://instagram.com/asimptasoftware",
     testId: "contact-link-instagram",
   },
   {

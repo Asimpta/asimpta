@@ -16,11 +16,10 @@ export default function Footer() {
   ];
 
   const connectLinks = [
-    { href: "mailto:ola@asimpta.com", label: "ola@asimpta.com", testId: "footer-link-email" },
+    { href: "mailto:contato@asimpta.com.br", label: "contato@asimpta.com.br", testId: "footer-link-email" },
     { href: "https://wa.me/5511990000000", label: "WhatsApp", testId: "footer-link-whatsapp" },
-    { href: "https://instagram.com/asimpta", label: "Instagram", testId: "footer-link-instagram" },
+    { href: "https://instagram.com/asimptasoftware", label: "Instagram", testId: "footer-link-instagram" },
     { href: "https://github.com/asimpta", label: "GitHub", testId: "footer-link-github" },
-    { href: "https://linkedin.com/company/asimpta", label: "LinkedIn", testId: "footer-link-linkedin" },
   ];
 
   return (
