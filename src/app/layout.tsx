@@ -87,7 +87,7 @@ const jsonLd = {
     availableLanguage: "Portuguese",
   },
   sameAs: [
-    "https://instagram.com/asimptasoftware",
+    "https://instagram.com/asimptabr",
     "https://github.com/asimpta",
   ],
 };
