@@ -4,11 +4,36 @@ import { useState, useEffect } from "react";
 import { X, Menu } from "lucide-react";
 
 const navLinks = [
-  { href: "#top", label: "Início", testId: "header-link-home" },
-  { href: "#servicos", label: "Serviços", testId: "header-link-services" },
-  { href: "#processo", label: "Processo", testId: "header-link-process" },
-  { href: "#sobre", label: "Sobre", testId: "header-link-about" },
-  { href: "#contato", label: "Contato", testId: "header-link-contact" },
+  {
+    href: "#top",
+    label: "Início",
+    testId: "header-link-home",
+    mobileTestId: "mobile-menu-link-home",
+  },
+  {
+    href: "#servicos",
+    label: "Serviços",
+    testId: "header-link-services",
+    mobileTestId: "mobile-menu-link-services",
+  },
+  {
+    href: "#processo",
+    label: "Processo",
+    testId: "header-link-process",
+    mobileTestId: "mobile-menu-link-process",
+  },
+  {
+    href: "#sobre",
+    label: "Sobre",
+    testId: "header-link-about",
+    mobileTestId: "mobile-menu-link-about",
+  },
+  {
+    href: "#contato",
+    label: "Contato",
+    testId: "header-link-contact",
+    mobileTestId: "mobile-menu-link-contact",
+  },
 ];
 
 export default function Header() {
@@ -150,7 +175,7 @@ export default function Header() {
                   handleNavClick(link.href);
                 }}
                 className="font-serif text-3xl text-ink block py-4 border-b border-line hover:text-accent transition-colors"
-                data-testid={link.testId}
+                data-testid={link.mobileTestId}
               >
                 {link.label}
               </a>

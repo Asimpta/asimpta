@@ -1,80 +1,191 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Header from "@/components/Header";
+import {
+  makeHeaderDesktopLinks,
+  makeScrollTarget,
+} from "@/__tests__/factories/header.factory";
 
-describe("Header", () => {
+describe("Cabeçalho", () => {
   beforeEach(() => {
     Object.defineProperty(window, "scrollY", { writable: true, value: 0 });
+    jest.clearAllMocks();
   });
 
-  it("renderiza o header com data-testid correto", () => {
+  it("renderiza o contrato de navegação desktop", () => {
+    // Arrange
+    const desktopLinks = makeHeaderDesktopLinks();
     render(<Header />);
-    expect(screen.getByTestId("header-section")).toBeInTheDocument();
-  });
 
-  it("renderiza o logo com link e data-testid", () => {
-    render(<Header />);
+    // Act
     const logo = screen.getByTestId("header-logo-link");
-    expect(logo).toBeInTheDocument();
+    const contactCta = screen.getByTestId("header-button-contact");
+    const startProjectCta = screen.getByTestId("header-button-start-project");
+
+    // Assert
     expect(logo).toHaveTextContent("Asimpta");
+    expect(logo).toHaveAttribute("href", "#top");
+    expect(contactCta).toHaveAttribute("href", "#contato");
+    expect(startProjectCta).toHaveAttribute("href", "#contato");
+
+    desktopLinks.forEach(([testId, label, href]) => {
+      const link = screen.getByTestId(testId);
+
+      expect(link).toHaveTextContent(label);
+      expect(link).toHaveAttribute("href", href);
+    });
   });
 
-  it("renderiza todos os links de navegação desktop", () => {
+  it("abre e fecha o menu mobile pelo botão de alternância", async () => {
+    // Arrange
+    const user = userEvent.setup();
     render(<Header />);
-    expect(screen.getByTestId("header-link-home")).toHaveTextContent("Início");
-    expect(screen.getByTestId("header-link-services")).toHaveTextContent("Serviços");
-    expect(screen.getByTestId("header-link-process")).toHaveTextContent("Processo");
-    expect(screen.getByTestId("header-link-about")).toHaveTextContent("Sobre");
-    expect(screen.getByTestId("header-link-contact")).toHaveTextContent("Contato");
-  });
 
-  it("renderiza botões de CTA", () => {
-    render(<Header />);
-    expect(screen.getByTestId("header-button-contact")).toBeInTheDocument();
-    expect(screen.getByTestId("header-button-start-project")).toBeInTheDocument();
-  });
+    // Act
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
 
-  it("abre o menu mobile ao clicar no botão de toggle", () => {
-    render(<Header />);
-    const toggleBtn = screen.getByTestId("mobile-menu-button-open");
-    fireEvent.click(toggleBtn);
+    // Assert
     expect(screen.getByTestId("mobile-menu-panel")).toBeInTheDocument();
-  });
+    expect(screen.getByRole("button", { name: "Fechar menu" })).toBeInTheDocument();
 
-  it("fecha o menu mobile ao clicar novamente no toggle", () => {
-    render(<Header />);
-    const toggleBtn = screen.getByTestId("mobile-menu-button-open");
+    // Act
+    await user.click(screen.getByRole("button", { name: "Fechar menu" }));
 
-    fireEvent.click(toggleBtn); // abre
-    expect(screen.getByTestId("mobile-menu-panel")).toBeInTheDocument();
-
-    const closeBtn = screen.getByTestId("mobile-menu-button-close");
-    fireEvent.click(closeBtn); // fecha
+    // Assert
     expect(screen.queryByTestId("mobile-menu-panel")).not.toBeInTheDocument();
   });
 
-  it("fecha o menu mobile ao clicar em um link de navegação", () => {
+  it("fecha o menu mobile e rola até o destino selecionado", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    Object.defineProperty(window, "scrollY", { writable: true, value: 20 });
+    makeScrollTarget("#servicos", 300);
     render(<Header />);
-    fireEvent.click(screen.getByTestId("mobile-menu-button-open"));
-    expect(screen.getByTestId("mobile-menu-panel")).toBeInTheDocument();
 
-    // Clica num link do menu mobile
-    const mobileLinks = screen.getByTestId("header-nav-mobile");
-    fireEvent.click(mobileLinks.querySelector("a")!);
+    // Act
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+    await user.click(screen.getByTestId("mobile-menu-link-services"));
+
+    // Assert
     expect(screen.queryByTestId("mobile-menu-panel")).not.toBeInTheDocument();
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 248,
+      behavior: "smooth",
+    });
   });
 
-  it("adiciona border ao header quando scrolled", async () => {
+  it("rola até o topo ao clicar no logo", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    Object.defineProperty(window, "scrollY", { writable: true, value: 200 });
+    makeScrollTarget("#top", 0);
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByTestId("header-logo-link"));
+
+    // Assert
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 128,
+      behavior: "smooth",
+    });
+  });
+
+  it("rola até a seção selecionada pelo menu desktop", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    Object.defineProperty(window, "scrollY", { writable: true, value: 20 });
+    makeScrollTarget("#processo", 420);
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByTestId("header-link-process"));
+
+    // Assert
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 368,
+      behavior: "smooth",
+    });
+  });
+
+  it("não tenta rolar quando a seção de destino não existe", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByTestId("header-link-about"));
+
+    // Assert
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("rola até contato ao clicar nos CTAs desktop", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    Object.defineProperty(window, "scrollY", { writable: true, value: 10 });
+    makeScrollTarget("#contato", 500);
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByTestId("header-button-contact"));
+    await user.click(screen.getByTestId("header-button-start-project"));
+
+    // Assert
+    expect(window.scrollTo).toHaveBeenCalledTimes(2);
+    expect(window.scrollTo).toHaveBeenNthCalledWith(1, {
+      top: 438,
+      behavior: "smooth",
+    });
+    expect(window.scrollTo).toHaveBeenNthCalledWith(2, {
+      top: 438,
+      behavior: "smooth",
+    });
+  });
+
+  it("fecha o menu mobile e rola até contato pelo CTA mobile", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    Object.defineProperty(window, "scrollY", { writable: true, value: 10 });
+    makeScrollTarget("#contato", 500);
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+    await user.click(screen.getByTestId("mobile-menu-button-start-project"));
+
+    // Assert
+    expect(screen.queryByTestId("mobile-menu-panel")).not.toBeInTheDocument();
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 438,
+      behavior: "smooth",
+    });
+  });
+
+  it("mantém os test ids da navegação desktop e mobile únicos com o menu aberto", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+
+    // Assert
+    expect(screen.getAllByTestId("header-link-services")).toHaveLength(1);
+    expect(screen.getAllByTestId("mobile-menu-link-services")).toHaveLength(1);
+  });
+
+  it("adiciona estado visual de borda depois do scroll da janela", () => {
+    // Arrange
     render(<Header />);
     const header = screen.getByTestId("header-section");
 
-    // Simula scroll
-    await act(async () => {
-      Object.defineProperty(window, "scrollY", { writable: true, value: 100 });
-      fireEvent.scroll(window);
-    });
+    // Act
+    Object.defineProperty(window, "scrollY", { writable: true, value: 100 });
+    fireEvent.scroll(window);
 
-    // Com scrollY > 12, o header deve ter a classe border-b border-line
-    expect(header.className).toMatch(/border-b/);
+    // Assert
+    expect(header).toHaveClass("border-b");
+    expect(header.className).toContain("border-line");
   });
 });

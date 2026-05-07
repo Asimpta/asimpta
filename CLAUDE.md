@@ -975,6 +975,26 @@ Ao modificar arquivos:
 - Não quebrar responsividade.
 - Não ignorar regras de testabilidade.
 
+## Testes unitários
+
+Os testes unitários devem seguir o padrão AAA:
+
+- Arrange: preparar dados, mocks e renderização.
+- Act: executar a ação ou obter o resultado observado.
+- Assert: validar o comportamento esperado.
+
+Regras obrigatórias:
+
+- As descrições de `describe` e `it` devem estar em pt-BR.
+- Não criar testes meramente cosméticos.
+- Testar comportamento, contratos de dados, validações, links importantes, estados de interação e fluxos de usuário.
+- Não testar classes CSS, espaçamentos, animações ou detalhes visuais sem impacto funcional.
+- Para listas renderizadas a partir de dados, validar que todos os itens configurados aparecem com identificadores estáveis.
+- Para formulários, validar regras de validação, payload enviado, estados de loading, sucesso e erro.
+- Usar factories ou builders para dados repetidos de teste, evitando duplicação excessiva.
+- Manter helpers de interação próximos do teste quando eles ajudarem a leitura do cenário.
+- Preferir queries acessíveis (`role`, texto, label) quando fizer sentido, usando `data-testid` para contratos estáveis e elementos críticos.
+
 ## Objetivo final
 
 O projeto deve parecer um site real, moderno e profissional da Asimpta, pronto para ser publicado, apresentado a clientes e evoluído pela equipe.

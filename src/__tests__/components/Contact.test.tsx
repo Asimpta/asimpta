@@ -1,270 +1,288 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Contact from "@/components/Contact";
+import {
+  ContactFormData,
+  makeContactFormData,
+  makeFormspreePayload,
+  makeInvalidEmailContactFormData,
+  makeRequiredContactErrors,
+} from "@/__tests__/factories/contact.factory";
 
-// Helper para preencher o formulário completo
-async function fillForm(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByTestId("contact-input-name"), "João Silva");
-  await user.type(screen.getByTestId("contact-input-email"), "joao@empresa.com");
-  await user.type(screen.getByTestId("contact-textarea-message"), "Quero um site institucional.");
-
-  // Seleciona tipo de projeto via dropdown customizado
-  fireEvent.click(screen.getByTestId("contact-select-trigger-project-type"));
-  fireEvent.click(screen.getByTestId("contact-select-option-site-institucional"));
+function mockFetch() {
+  const fetchMock = jest.fn();
+  global.fetch = fetchMock as unknown as typeof fetch;
+  return fetchMock;
 }
 
-describe("Contact — renderização", () => {
-  it("renderiza a seção com data-testid correto", () => {
-    render(<Contact />);
-    expect(screen.getByTestId("contact-section")).toBeInTheDocument();
+async function selectProjectType(value: string) {
+  fireEvent.click(screen.getByTestId("contact-select-trigger-project-type"));
+  fireEvent.click(screen.getByTestId(`contact-select-option-${value}`));
+}
+
+async function fillContactForm(data: ContactFormData) {
+  const user = userEvent.setup();
+
+  await user.type(screen.getByTestId("contact-input-name"), data.name);
+  await user.type(screen.getByTestId("contact-input-email"), data.email);
+  await user.type(screen.getByTestId("contact-textarea-message"), data.message);
+
+  if (data.whatsapp) {
+    await user.type(screen.getByTestId("contact-input-whatsapp"), data.whatsapp);
+  }
+
+  await selectProjectType(data.projectType);
+
+  return user;
+}
+
+describe("Formulário de contato", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("renderiza o formulário", () => {
+  it("bloqueia o envio e exibe erros obrigatórios quando o formulário está vazio", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const fetchMock = mockFetch();
+    const errors = makeRequiredContactErrors();
     render(<Contact />);
-    expect(screen.getByTestId("contact-form")).toBeInTheDocument();
-  });
 
-  it("renderiza todos os campos obrigatórios", () => {
-    render(<Contact />);
-    expect(screen.getByTestId("contact-input-name")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-input-email")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-input-whatsapp")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-select-project-type")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-textarea-message")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-button-submit")).toBeInTheDocument();
-  });
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
 
-  it("renderiza os links de contato laterais", () => {
-    render(<Contact />);
-    expect(screen.getByTestId("contact-link-whatsapp")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-link-email")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-link-instagram")).toBeInTheDocument();
-    expect(screen.getByTestId("contact-link-github")).toBeInTheDocument();
-  });
-
-  it("não exibe mensagem de sucesso ou erro inicialmente", () => {
-    render(<Contact />);
-    expect(screen.queryByTestId("contact-success-message")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("contact-error-submit")).not.toBeInTheDocument();
-  });
-});
-
-describe("Contact — validação do formulário", () => {
-  it("exibe erros ao tentar enviar formulário vazio", async () => {
-    render(<Contact />);
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
+    // Assert
     expect(await screen.findByTestId("contact-error-name")).toHaveTextContent(
-      "Nome é obrigatório."
+      errors.name
     );
     expect(screen.getByTestId("contact-error-email")).toHaveTextContent(
-      "E-mail é obrigatório."
+      errors.email
     );
     expect(screen.getByTestId("contact-error-project-type")).toHaveTextContent(
-      "Selecione um tipo de projeto."
+      errors.projectType
     );
     expect(screen.getByTestId("contact-error-message")).toHaveTextContent(
-      "Mensagem é obrigatória."
+      errors.message
     );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("exibe erro de e-mail inválido", async () => {
-    const user = userEvent.setup();
+  it("bloqueia o envio quando o e-mail tem formato inválido", async () => {
+    // Arrange
+    const data = makeInvalidEmailContactFormData({ whatsapp: "" });
+    const fetchMock = mockFetch();
     render(<Contact />);
 
-    await user.type(screen.getByTestId("contact-input-email"), "email-invalido");
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
+    // Act
+    const user = await fillContactForm(data);
+    await user.click(screen.getByTestId("contact-button-submit"));
 
+    // Assert
     expect(await screen.findByTestId("contact-error-email")).toHaveTextContent(
       "E-mail inválido."
     );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("não exibe erros com formulário válido antes do envio", async () => {
-    const user = userEvent.setup();
-    vi.spyOn(global, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
-
-    render(<Contact />);
-    await fillForm(user);
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("contact-error-name")).not.toBeInTheDocument();
-      expect(screen.queryByTestId("contact-error-email")).not.toBeInTheDocument();
-    });
-
-    vi.restoreAllMocks();
-  });
-});
-
-describe("Contact — dropdown customizado", () => {
-  it("abre o dropdown ao clicar no trigger", () => {
+  it("permite selecionar o tipo de projeto pelo teclado no dropdown customizado", () => {
+    // Arrange
     render(<Contact />);
     const trigger = screen.getByTestId("contact-select-trigger-project-type");
-    fireEvent.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    // Act
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveTextContent("Site institucional");
   });
 
-  it("fecha o dropdown ao selecionar uma opção", () => {
-    render(<Contact />);
-    fireEvent.click(screen.getByTestId("contact-select-trigger-project-type"));
-    fireEvent.click(screen.getByTestId("contact-select-option-landing-page"));
-    expect(
-      screen.getByTestId("contact-select-trigger-project-type")
-    ).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("exibe o label da opção selecionada no trigger", () => {
-    render(<Contact />);
-    fireEvent.click(screen.getByTestId("contact-select-trigger-project-type"));
-    fireEvent.click(screen.getByTestId("contact-select-option-plataforma-saas"));
-    expect(screen.getByTestId("contact-select-trigger-project-type")).toHaveTextContent(
-      "Plataforma SaaS"
-    );
-  });
-
-  it("fecha o dropdown ao pressionar Escape", () => {
+  it("permite navegar e fechar o dropdown customizado pelo teclado", () => {
+    // Arrange
     render(<Contact />);
     const trigger = screen.getByTestId("contact-select-trigger-project-type");
-    fireEvent.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
 
+    // Act
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.keyDown(trigger, { key: "ArrowUp" });
     fireEvent.keyDown(trigger, { key: "Escape" });
+
+    // Assert
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveTextContent("Selecione uma opção");
   });
 
-  it("navega pelas opções com ArrowDown e seleciona com Enter", () => {
+  it("abre o dropdown pela tecla espaço", () => {
+    // Arrange
     render(<Contact />);
     const trigger = screen.getByTestId("contact-select-trigger-project-type");
 
-    fireEvent.keyDown(trigger, { key: "ArrowDown" }); // abre
+    // Act
+    fireEvent.keyDown(trigger, { key: " " });
+
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("listbox", { name: "Tipo de projeto" })).toBeInTheDocument();
+  });
+
+  it("ignora teclas sem ação mapeada no dropdown customizado", () => {
+    // Arrange
+    render(<Contact />);
+    const trigger = screen.getByTestId("contact-select-trigger-project-type");
+
+    // Act
+    fireEvent.keyDown(trigger, { key: "Tab" });
+
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveTextContent("Selecione uma opção");
+  });
+
+  it("fecha o dropdown ao clicar fora e mantém aberto ao clicar dentro", () => {
+    // Arrange
+    render(<Contact />);
+    const trigger = screen.getByTestId("contact-select-trigger-project-type");
+
+    // Act
+    fireEvent.click(trigger);
+    fireEvent.mouseDown(trigger);
+
+    // Assert
     expect(trigger).toHaveAttribute("aria-expanded", "true");
 
-    fireEvent.keyDown(trigger, { key: "ArrowDown" }); // move para índice 1
-    fireEvent.keyDown(trigger, { key: "Enter" }); // seleciona
+    // Act
+    fireEvent.mouseDown(document.body);
+
+    // Assert
     expect(trigger).toHaveAttribute("aria-expanded", "false");
-    // Verifica que algum label foi selecionado (não é mais o placeholder)
-    expect(trigger).not.toHaveTextContent("Selecione uma opção");
-  });
-});
-
-describe("Contact — integração Formspree", () => {
-  beforeEach(() => {
-    vi.spyOn(global, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), { status: 200 })
-    );
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("chama fetch com o endpoint do Formspree ao enviar", async () => {
-    const user = userEvent.setup();
+  it("fecha o dropdown ao clicar novamente no trigger", () => {
+    // Arrange
     render(<Contact />);
-    await fillForm(user);
+    const trigger = screen.getByTestId("contact-select-trigger-project-type");
 
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
+    // Act
+    fireEvent.click(trigger);
+    fireEvent.click(trigger);
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledOnce();
+    // Assert
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("mantém a opção selecionada marcada ao reabrir o dropdown", async () => {
+    // Arrange
+    render(<Contact />);
+    const trigger = screen.getByTestId("contact-select-trigger-project-type");
+
+    // Act
+    await selectProjectType("plataforma-saas");
+    await waitFor(() =>
+      expect(screen.getByTestId("contact-select-trigger-project-type")).toHaveTextContent(
+        "Plataforma SaaS"
+      )
+    );
+    fireEvent.click(trigger);
+    fireEvent.mouseEnter(screen.getByTestId("contact-select-option-dashboard"));
+
+    // Assert
+    expect(screen.getByTestId("contact-select-option-plataforma-saas")).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    expect(trigger).toHaveTextContent("Plataforma SaaS");
+  });
+
+  it("envia o payload esperado e limpa o formulário após sucesso", async () => {
+    // Arrange
+    const data = makeContactFormData();
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue({ ok: true });
+    render(<Contact />);
+    const user = await fillContactForm(data);
+
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
+
+    // Assert
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+
+    expect(options).toMatchObject({
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
     });
-
-    const [url, options] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-    expect(typeof url).toBe("string");
-    expect(options.method).toBe("POST");
-    expect(options.headers["Content-Type"]).toBe("application/json");
+    expect(body).toEqual(makeFormspreePayload(data));
+    expect(await screen.findByTestId("contact-success-message")).toBeInTheDocument();
+    expect(screen.getByTestId("contact-input-name")).toHaveValue("");
+    expect(screen.getByTestId("contact-input-email")).toHaveValue("");
+    expect(screen.getByTestId("contact-input-whatsapp")).toHaveValue("");
+    expect(screen.getByTestId("contact-textarea-message")).toHaveValue("");
   });
 
-  it("envia os dados corretos do formulário", async () => {
-    const user = userEvent.setup();
-    render(<Contact />);
-    await fillForm(user);
-
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
-    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
-
-    const body = JSON.parse(
-      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body
+  it("mantém o botão de envio desabilitado enquanto a requisição está pendente", async () => {
+    // Arrange
+    const data = makeContactFormData({ whatsapp: "" });
+    let resolveRequest!: (response: { ok: boolean }) => void;
+    const fetchMock = mockFetch();
+    fetchMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRequest = resolve;
+        })
     );
-    expect(body.name).toBe("João Silva");
-    expect(body.email).toBe("joao@empresa.com");
-    expect(body.message).toBe("Quero um site institucional.");
-  });
-
-  it("exibe mensagem de sucesso após envio bem-sucedido", async () => {
-    const user = userEvent.setup();
     render(<Contact />);
-    await fillForm(user);
+    const user = await fillContactForm(data);
 
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
 
-    expect(
-      await screen.findByTestId("contact-success-message")
-    ).toBeInTheDocument();
-  });
-
-  it("limpa o formulário após envio bem-sucedido", async () => {
-    const user = userEvent.setup();
-    render(<Contact />);
-    await fillForm(user);
-
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("contact-input-name")).toHaveValue("");
-      expect(screen.getByTestId("contact-input-email")).toHaveValue("");
-      expect(screen.getByTestId("contact-textarea-message")).toHaveValue("");
-    });
-  });
-
-  it("exibe mensagem de erro quando o Formspree retorna falha", async () => {
-    vi.restoreAllMocks();
-    vi.spyOn(global, "fetch").mockResolvedValue(
-      new Response(null, { status: 422 })
-    );
-
-    const user = userEvent.setup();
-    render(<Contact />);
-    await fillForm(user);
-
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
-    expect(await screen.findByTestId("contact-error-submit")).toBeInTheDocument();
-  });
-
-  it("exibe mensagem de erro quando a rede falha", async () => {
-    vi.restoreAllMocks();
-    vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
-
-    const user = userEvent.setup();
-    render(<Contact />);
-    await fillForm(user);
-
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
-    expect(await screen.findByTestId("contact-error-submit")).toBeInTheDocument();
-  });
-
-  it("desabilita o botão de envio durante o carregamento", async () => {
-    vi.restoreAllMocks();
-    // Fetch que demora para resolver
-    vi.spyOn(global, "fetch").mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(new Response(null, { status: 200 })), 200))
-    );
-
-    const user = userEvent.setup();
-    render(<Contact />);
-    await fillForm(user);
-
-    fireEvent.click(screen.getByTestId("contact-button-submit"));
-
+    // Assert
     expect(screen.getByTestId("contact-button-submit")).toBeDisabled();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("contact-button-submit")).not.toBeDisabled();
-    });
+    // Act
+    resolveRequest({ ok: true });
+
+    // Assert
+    await waitFor(() =>
+      expect(screen.getByTestId("contact-button-submit")).not.toBeDisabled()
+    );
+  });
+
+  it("exibe erro de envio quando a requisição falha", async () => {
+    // Arrange
+    const data = makeContactFormData({ whatsapp: "" });
+    const fetchMock = mockFetch();
+    fetchMock.mockRejectedValue(new Error("Network error"));
+    render(<Contact />);
+    const user = await fillContactForm(data);
+
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
+
+    // Assert
+    expect(await screen.findByTestId("contact-error-submit")).toBeInTheDocument();
+  });
+
+  it("exibe erro de envio quando o serviço retorna uma resposta sem sucesso", async () => {
+    // Arrange
+    const data = makeContactFormData({ whatsapp: "" });
+    const fetchMock = mockFetch();
+    fetchMock.mockResolvedValue({ ok: false });
+    render(<Contact />);
+    const user = await fillContactForm(data);
+
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
+
+    // Assert
+    expect(await screen.findByTestId("contact-error-submit")).toBeInTheDocument();
   });
 });
