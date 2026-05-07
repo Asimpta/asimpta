@@ -1,10 +1,10 @@
 export function makeHeaderDesktopLinks() {
   return [
-    ["header-link-home", "Início", "#top"],
-    ["header-link-services", "Serviços", "#servicos"],
-    ["header-link-process", "Processo", "#processo"],
-    ["header-link-about", "Sobre", "#sobre"],
-    ["header-link-contact", "Contato", "#contato"],
+    ["header-link-home", "#top"],
+    ["header-link-services", "#servicos"],
+    ["header-link-process", "#processo"],
+    ["header-link-about", "#sobre"],
+    ["header-link-contact", "#contato"],
   ] as const;
 }
 

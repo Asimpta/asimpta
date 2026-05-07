@@ -989,6 +989,9 @@ Regras obrigatórias:
 - Não criar testes meramente cosméticos.
 - Testar comportamento, contratos de dados, validações, links importantes, estados de interação e fluxos de usuário.
 - Não testar classes CSS, espaçamentos, animações ou detalhes visuais sem impacto funcional.
+- Não fixar textos comerciais, nomes, telefones, handles, URLs completas de canais externos ou copy que possa mudar legitimamente.
+- Quando um conteúdo precisar ser validado, preferir importar a fonte de dados usada pelo componente em vez de duplicar literais no teste.
+- Para links externos de contato, validar formato/protocolo e presença do canal, não valores exatos de telefone ou usuário.
 - Para listas renderizadas a partir de dados, validar que todos os itens configurados aparecem com identificadores estáveis.
 - Para formulários, validar regras de validação, payload enviado, estados de loading, sucesso e erro.
 - Usar factories ou builders para dados repetidos de teste, evitando duplicação excessiva.

@@ -21,21 +21,21 @@ describe("Rodapé", () => {
     });
   });
 
-  it("mantém os canais externos de contato configurados", () => {
+  it("mantém os canais externos de contato com formatos válidos", () => {
     // Arrange
     render(<Footer />);
 
     // Act
     const externalLinks = [
-      ["footer-link-email", "mailto:contato@asimpta.com.br"],
-      ["footer-link-whatsapp", "https://wa.me/5511990000000"],
-      ["footer-link-instagram", "https://instagram.com/asimptasoftware"],
-      ["footer-link-github", "https://github.com/asimpta"],
+      ["footer-link-email", /^mailto:.+@.+\..+$/],
+      ["footer-link-whatsapp", /^https:\/\/wa\.me\/\d+$/],
+      ["footer-link-instagram", /^https:\/\/.+/],
+      ["footer-link-github", /^https:\/\/.+/],
     ] as const;
 
     // Assert
-    externalLinks.forEach(([testId, href]) => {
-      expect(screen.getByTestId(testId)).toHaveAttribute("href", href);
+    externalLinks.forEach(([testId, hrefPattern]) => {
+      expect(screen.getByTestId(testId).getAttribute("href")).toMatch(hrefPattern);
     });
   });
 });

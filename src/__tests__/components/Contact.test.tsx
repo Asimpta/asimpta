@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Contact from "@/components/Contact";
+import { projectTypeOptions } from "@/data/site";
 import {
   ContactFormData,
   makeContactFormData,
@@ -95,7 +96,7 @@ describe("Formulário de contato", () => {
 
     // Assert
     expect(trigger).toHaveAttribute("aria-expanded", "false");
-    expect(trigger).toHaveTextContent("Site institucional");
+    expect(trigger).toHaveTextContent(projectTypeOptions[0].label);
   });
 
   it("permite navegar e fechar o dropdown customizado pelo teclado", () => {
@@ -174,25 +175,30 @@ describe("Formulário de contato", () => {
 
   it("mantém a opção selecionada marcada ao reabrir o dropdown", async () => {
     // Arrange
+    const selectedOption = projectTypeOptions[3] ?? projectTypeOptions[0];
+    const hoveredOption =
+      projectTypeOptions.find((option) => option.value !== selectedOption.value) ??
+      selectedOption;
     render(<Contact />);
     const trigger = screen.getByTestId("contact-select-trigger-project-type");
 
     // Act
-    await selectProjectType("plataforma-saas");
+    await selectProjectType(selectedOption.value);
     await waitFor(() =>
       expect(screen.getByTestId("contact-select-trigger-project-type")).toHaveTextContent(
-        "Plataforma SaaS"
+        selectedOption.label
       )
     );
     fireEvent.click(trigger);
-    fireEvent.mouseEnter(screen.getByTestId("contact-select-option-dashboard"));
+    fireEvent.mouseEnter(
+      screen.getByTestId(`contact-select-option-${hoveredOption.value}`)
+    );
 
     // Assert
-    expect(screen.getByTestId("contact-select-option-plataforma-saas")).toHaveAttribute(
-      "aria-selected",
-      "true"
-    );
-    expect(trigger).toHaveTextContent("Plataforma SaaS");
+    expect(
+      screen.getByTestId(`contact-select-option-${selectedOption.value}`)
+    ).toHaveAttribute("aria-selected", "true");
+    expect(trigger).toHaveTextContent(selectedOption.label);
   });
 
   it("envia o payload esperado e limpa o formulário após sucesso", async () => {
