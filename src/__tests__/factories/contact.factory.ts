@@ -1,3 +1,5 @@
+import { projectTypeOptions } from "@/data/site";
+
 export interface ContactFormData {
   name: string;
   email: string;
@@ -13,7 +15,7 @@ export function makeContactFormData(
     name: "João Silva",
     email: "joao@empresa.com",
     whatsapp: "+55 11 99999-0000",
-    projectType: "site-institucional",
+    projectType: projectTypeOptions[0].value,
     message: "Quero um site institucional.",
     ...overrides,
   };
@@ -24,7 +26,7 @@ export function makeInvalidEmailContactFormData(
 ): ContactFormData {
   return makeContactFormData({
     email: "email-invalido",
-    projectType: "landing-page",
+    projectType: projectTypeOptions[1]?.value ?? projectTypeOptions[0].value,
     message: "Preciso de um site.",
     ...overrides,
   });

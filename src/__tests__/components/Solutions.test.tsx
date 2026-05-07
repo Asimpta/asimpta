@@ -34,19 +34,17 @@ describe("Soluções", () => {
     });
   });
 
-  it("mantém a comunicação honesta de cases em breve", () => {
+  it("mantém o estado de cases futuros identificado sem fixar texto comercial", () => {
     // Arrange
     render(<Solutions />);
 
     // Act
     const futureCasesMessage = screen.getByTestId("solutions-future-cases-message");
+    const emptyState = screen.getByTestId("solutions-empty-state");
     const reserveSlotLink = screen.getByTestId("solutions-link-reserve-slot");
 
     // Assert
-    expect(futureCasesMessage).toHaveTextContent(
-      /estamos construindo nossos primeiros cases/i
-    );
-    expect(futureCasesMessage).toHaveTextContent(/projetos reais da asimpta/i);
+    expect(futureCasesMessage).toContainElement(emptyState);
     expect(reserveSlotLink).toHaveAttribute("href", "#contato");
   });
 });
