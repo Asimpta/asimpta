@@ -17,8 +17,8 @@ export default function Footer() {
 
   const connectLinks = [
     { href: "mailto:contato@asimpta.com.br", label: "contato@asimpta.com.br", testId: "footer-link-email" },
-    { href: "https://wa.me/5511990000000", label: "WhatsApp", testId: "footer-link-whatsapp" },
-    { href: "https://instagram.com/asimptasoftware", label: "Instagram", testId: "footer-link-instagram" },
+    { href: "https://wa.me/5514996305339", label: "WhatsApp", testId: "footer-link-whatsapp" },
+    { href: "https://instagram.com/asimptabr", label: "Instagram", testId: "footer-link-instagram" },
     { href: "https://github.com/asimpta", label: "GitHub", testId: "footer-link-github" },
   ];
 

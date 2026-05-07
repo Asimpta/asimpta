@@ -161,8 +161,8 @@ const contactLinks = [
   {
     id: "whatsapp",
     label: "WhatsApp",
-    value: "+55 (11) 99000-0000",
-    href: "https://wa.me/5511990000000",
+    value: "+55 (14) 99630-5339",
+    href: "https://wa.me/5514996305339",
     testId: "contact-link-whatsapp",
   },
   {
@@ -171,13 +171,6 @@ const contactLinks = [
     value: "contato@asimpta.com.br",
     href: "mailto:contato@asimpta.com.br",
     testId: "contact-link-email",
-  },
-  {
-    id: "instagram",
-    label: "Instagram",
-    value: "@asimptasoftware",
-    href: "https://instagram.com/asimptasoftware",
-    testId: "contact-link-instagram",
   },
   {
     id: "github",
