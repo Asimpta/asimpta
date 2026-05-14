@@ -67,30 +67,38 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Asimpta",
-  url: BASE_URL,
-  logo: `${BASE_URL}/icon.png`,
-  description:
-    "Software house focada em criar soluções digitais elegantes, funcionais e bem construídas.",
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "BR",
-    addressRegion: "SP",
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Asimpta",
+    url: BASE_URL,
   },
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer service",
-    email: "contato@asimpta.com.br",
-    availableLanguage: "Portuguese",
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Asimpta",
+    url: BASE_URL,
+    logo: `${BASE_URL}/icon.png`,
+    description:
+      "Software house focada em criar soluções digitais elegantes, funcionais e bem construídas.",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "BR",
+      addressRegion: "SP",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: "contato@asimpta.com.br",
+      availableLanguage: "Portuguese",
+    },
+    sameAs: [
+      "https://instagram.com/asimptabr",
+      "https://github.com/asimpta",
+    ],
   },
-  sameAs: [
-    "https://instagram.com/asimptabr",
-    "https://github.com/asimpta",
-  ],
-};
+];
 
 export default function RootLayout({
   children,
