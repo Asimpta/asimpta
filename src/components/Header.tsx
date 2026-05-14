@@ -116,11 +116,9 @@ export default function Header() {
             {/* CTA buttons */}
             <div className="flex items-center gap-3">
               <a
-                href="#contato"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick("#contato");
-                }}
+                href="https://wa.me/5514996305339"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hidden lg:inline-flex items-center gap-2 px-4 py-3 rounded-full text-sm font-medium text-ink border border-line transition-all duration-200 hover:bg-paper hover:border-[#C9C5BB]"
                 data-testid="header-button-contact"
               >
@@ -135,10 +133,7 @@ export default function Header() {
                 className="hidden sm:inline-flex items-center gap-2 px-4 py-3 rounded-full text-sm font-medium text-[#FBFAF7] bg-ink transition-all duration-200 hover:bg-accent"
                 data-testid="header-button-start-project"
               >
-                Começar projeto{" "}
-                <span className="transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                Começar projeto →
               </a>
 
               {/* Mobile toggle */}
@@ -181,17 +176,33 @@ export default function Header() {
               </a>
             ))}
           </nav>
-          <a
-            href="#contato"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavClick("#contato");
-            }}
-            className="mt-6 self-start inline-flex items-center gap-2 px-5 py-3.5 rounded-full text-sm font-medium text-[#FBFAF7] bg-ink hover:bg-accent transition-colors"
-            data-testid="mobile-menu-button-start-project"
-          >
-            Começar projeto →
-          </a>
+          <div className="mt-6 flex flex-col gap-3">
+            <a
+              href="https://wa.me/5514996305339"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="self-start inline-flex items-center gap-2 px-5 py-3.5 rounded-full text-sm font-medium text-ink border border-line hover:bg-paper transition-colors"
+              data-testid="mobile-menu-button-contact"
+            >
+              Fale conosco
+            </a>
+            <a
+              href="#contato"
+              onClick={(e) => {
+                e.preventDefault();
+                setMenuOpen(false);
+                const target = document.querySelector("#contato");
+                if (!target) return;
+                const y = target.getBoundingClientRect().top + window.scrollY - 72;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }}
+              className="self-start inline-flex items-center gap-2 px-5 py-3.5 rounded-full text-sm font-medium text-[#FBFAF7] bg-ink hover:bg-accent transition-colors"
+              data-testid="mobile-menu-button-start-project"
+            >
+              Começar projeto →
+            </a>
+          </div>
         </div>
       )}
     </>

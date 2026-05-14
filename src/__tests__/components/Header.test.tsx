@@ -24,7 +24,7 @@ describe("Cabeçalho", () => {
 
     // Assert
     expect(logo).toHaveAttribute("href", "#top");
-    expect(contactCta).toHaveAttribute("href", "#contato");
+    expect(contactCta.getAttribute("href")).toMatch(/^https:\/\/wa\.me\/\d+$/);
     expect(startProjectCta).toHaveAttribute("href", "#contato");
 
     desktopLinks.forEach(([testId, href]) => {
@@ -116,7 +116,7 @@ describe("Cabeçalho", () => {
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
-  it("rola até contato ao clicar nos CTAs desktop", async () => {
+  it("rola até contato ao clicar no CTA 'Começar projeto' desktop", async () => {
     // Arrange
     const user = userEvent.setup();
     Object.defineProperty(window, "scrollY", { writable: true, value: 10 });
@@ -124,22 +124,32 @@ describe("Cabeçalho", () => {
     render(<Header />);
 
     // Act
-    await user.click(screen.getByTestId("header-button-contact"));
     await user.click(screen.getByTestId("header-button-start-project"));
 
     // Assert
-    expect(window.scrollTo).toHaveBeenCalledTimes(2);
-    expect(window.scrollTo).toHaveBeenNthCalledWith(1, {
-      top: expect.any(Number),
-      behavior: "smooth",
-    });
-    expect(window.scrollTo).toHaveBeenNthCalledWith(2, {
+    expect(window.scrollTo).toHaveBeenCalledTimes(1);
+    expect(window.scrollTo).toHaveBeenCalledWith({
       top: expect.any(Number),
       behavior: "smooth",
     });
   });
 
-  it("fecha o menu mobile e rola até contato pelo CTA mobile", async () => {
+  it("o CTA 'Fale conosco' desktop aponta para o WhatsApp e não dispara scroll", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByTestId("header-button-contact"));
+
+    // Assert
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(screen.getByTestId("header-button-contact").getAttribute("href")).toMatch(
+      /^https:\/\/wa\.me\/\d+$/
+    );
+  });
+
+  it("fecha o menu mobile e rola até contato pelo CTA 'Começar projeto' mobile", async () => {
     // Arrange
     const user = userEvent.setup();
     Object.defineProperty(window, "scrollY", { writable: true, value: 10 });
@@ -156,6 +166,22 @@ describe("Cabeçalho", () => {
       top: expect.any(Number),
       behavior: "smooth",
     });
+  });
+
+  it("o CTA 'Fale conosco' mobile aponta para o WhatsApp e fecha o menu", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<Header />);
+
+    // Act
+    await user.click(screen.getByRole("button", { name: "Abrir menu" }));
+    const contactLink = screen.getByTestId("mobile-menu-button-contact");
+
+    // Assert — verifica href antes de clicar (o menu fecha após o clique)
+    expect(contactLink.getAttribute("href")).toMatch(/^https:\/\/wa\.me\/\d+$/);
+
+    await user.click(contactLink);
+    expect(screen.queryByTestId("mobile-menu-panel")).not.toBeInTheDocument();
   });
 
   it("mantém os test ids da navegação desktop e mobile únicos com o menu aberto", async () => {
