@@ -145,11 +145,19 @@ export default function Footer() {
             © 2026 Asimpta · Estúdio digital · São Paulo, BR
           </span>
           <div className="flex gap-[18px] flex-wrap">
-            <a href="#" className="hover:text-[#88B5AE] transition-colors">
+            <a
+              href="/politica-de-privacidade"
+              className="hover:text-[#88B5AE] transition-colors"
+              data-testid="footer-link-privacy"
+            >
               Política de privacidade
             </a>
-            <a href="#" className="hover:text-[#88B5AE] transition-colors">
-              Termos
+            <a
+              href="/termos-de-uso"
+              className="hover:text-[#88B5AE] transition-colors"
+              data-testid="footer-link-terms"
+            >
+              Termos de uso
             </a>
           </div>
         </div>
