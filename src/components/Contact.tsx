@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { projectTypeOptions } from "@/data/site";
 import type { SelectOption } from "@/types";
 
-const FORMSPREE_ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "";
 
 // ─── Custom Select ────────────────────────────────────────────────────────────
 
@@ -237,10 +236,17 @@ export default function Contact() {
     }
 
     setErrors({});
+
+    const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "";
+    if (!endpoint) {
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,10 @@
 const nextJest = require("next/jest");
 
+// Garante que o endpoint do formulário esteja disponível nos testes
+// antes que qualquer módulo seja importado e a constante seja avaliada.
+process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT =
+  process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT || "https://formspree.io/f/test";
+
 const createJestConfig = nextJest({
   dir: "./",
 });
