@@ -42,6 +42,27 @@ describe("Formulário de contato", () => {
     jest.clearAllMocks();
   });
 
+  it("exibe erro imediato quando o endpoint do formulário não está configurado", async () => {
+    // Arrange — simula deploy sem a variável de ambiente configurada
+    const originalEndpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
+    process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT = "";
+
+    const data = makeContactFormData({ whatsapp: "" });
+    const fetchMock = mockFetch();
+    render(<Contact />);
+    const user = await fillContactForm(data);
+
+    // Act
+    await user.click(screen.getByTestId("contact-button-submit"));
+
+    // Assert
+    expect(await screen.findByTestId("contact-error-submit")).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    // Cleanup
+    process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT = originalEndpoint;
+  });
+
   it("bloqueia o envio e exibe erros obrigatórios quando o formulário está vazio", async () => {
     // Arrange
     const user = userEvent.setup();
