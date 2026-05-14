@@ -138,6 +138,26 @@ svg {
   color: var(--accent);
 }
 
+/* ── Legal pages ─────────────────────────────────────────────────────── */
+
+.legal-content-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.legal-toc-sticky {
+  position: sticky;
+  top: 96px;
+}
+
+@media (max-width: 1024px) {
+  .legal-content-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* ── Responsive grid overrides ──────────────────────────────────────── */
 
 /* Section headers: 2-col → 1-col below 880px */

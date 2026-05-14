@@ -38,4 +38,19 @@ describe("Rodapé", () => {
       expect(screen.getByTestId(testId).getAttribute("href")).toMatch(hrefPattern);
     });
   });
+
+  it("mantém os links legais apontando para as páginas institucionais corretas", () => {
+    // Arrange
+    render(<Footer />);
+
+    // Assert
+    expect(screen.getByTestId("footer-link-privacy")).toHaveAttribute(
+      "href",
+      "/politica-de-privacidade"
+    );
+    expect(screen.getByTestId("footer-link-terms")).toHaveAttribute(
+      "href",
+      "/termos-de-uso"
+    );
+  });
 });
